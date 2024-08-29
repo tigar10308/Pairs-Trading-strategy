@@ -1,3 +1,4 @@
+#Import  data 
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -16,6 +17,8 @@ data= yf.download(tickers,strat,end)['Adj Close']
 
 data.info()
 
+
+#co-integrated pairs
 def find_cointegrated_pairs(data):
     n = data.shape[1]
     score_matrix= np.zeros((n,n))
@@ -46,6 +49,7 @@ mask = (pvalues>=0.05)
 )
 plt.show()
 
+#spread model 
 S1 = data.AMZN
 S2= data.AAPL
 
@@ -61,6 +65,7 @@ plt.legend(['Spread']);
 plt.grid(True)
 plt.show()
 
+#trading  strategy with zscore  
 def  zscore(series):
     return (series-series.mean())/np.std(series)
 zscore(spread).plot()
@@ -71,13 +76,16 @@ plt.legend(['Spread zscore','mean','-1','+1'])
 plt.grid(True)
 plt.show()
 
+#DataFrame with the signal and position 
 trades = pd.concat([zscore(spread),S2-b*S1],axis=1)
 trades.columns= ["signal","position"]
 
+#add a long and short postiton in zscore 
 trades["side"]= 0.0
 trades.loc[trades.signal <= -1, "side"]= 1
 trades.loc[trades.signal >= 1, "side"]= -1
 
+#plot the data 
 returns = trades.position.pct_change()*trades.side
 returns.cumsum().plot()
 plt.show()
